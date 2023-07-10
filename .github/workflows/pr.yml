@@ -17,7 +17,7 @@ jobs:
 
       - name: Retrieve the version
         id: version
-        run: echo "version = $(cat ~/version.txt)" >> $GITHUB_OUTPUT
+        run: echo "version = $(cat ../version.txt)" >> $GITHUB_OUTPUT
 
       - name: Assign version as a label
         run: |
