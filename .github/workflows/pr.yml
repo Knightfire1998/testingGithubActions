@@ -29,44 +29,20 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
-
-      - name: Check Label Existence
-        id: check_label
-        run: |
-          version="${{ env.version }}"
-
-          # Retrieve label information using the GitHub API
-          label_response=$(gh api -X GET /repos/${{ github.repository }}/labels/"$version")
-          echo "$label_response"
-          exists=$(echo "$label_response" | jq -e . >/dev/null; echo $?)
-          echo "exists=${exists}" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.Token }}
-
-
       - name: Assign version as a label
         run: |
           version="${{ env.version }}"
-          exists="${{ env.exists }}"
-
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
           echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-
-
-          if [[ $exists -ne 0 ]]; then
-            gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
-            
-          else
-
+          gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
           gh pr edit $pr_number --add-label "$version"
-          
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
       - name: Retrieve PR details
         id: pr
         run: |
-          pr_number="{{env.PR_NUMBER}}"
+          pr_number="{{$PR_NUMBER}}"
           task_id=$(gh pr view $pr_number --json body -q '.body' | grep -oP '#\d+' | grep -oP '\d+')        
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
