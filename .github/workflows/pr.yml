@@ -33,9 +33,42 @@ jobs:
         run: |
           version="${{ env.version }}"
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
-          gh pr edit $pr_number --add-label "$version"
+          echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
+         
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
+
+      - name: Get Project Custom Field
+        id: get_custom_field
+        run: |
+          project_id="49895164"  # Replace with your project ID
+          custom_field_name="versions"  # Replace with the name of your custom field
+          custom_field_value=$(curl -s -H "Authorization: Bearer ${{ secrets.Token }}" \
+              "https://api.github.com/projects/$project_id" | \
+              jq -r ".custom_field_values[] | select(.name == \"$custom_field_name\") | .value")
+
+          echo "CUSTOM_FIELD_VALUE=$custom_field_value" >> $GITHUB_ENV
+
+      - name: Use PR number and add label
+        run: |
+          pr_number=$PR_NUMBER
+          custom_field_value=$CUSTOM_FIELD_VALUE
+          echo "PR number: $pr_number"
+          echo "Custom field value: $custom_field_value"
+
+          # Assign the label based on the custom field value
+          if [[ "$custom_field_value" == "Option 1" ]]; then
+            label="label1"
+          elif [[ "$custom_field_value" == "Option 2" ]]; then
+            label="label2"
+          else
+            label="default-label"
+          fi
+
+          gh pr edit $pr_number --add-label "$label"
+        env:
+          GITHUB_TOKEN: ${{ secrets.Token }}
+
 
       - name: Retrieve PR details
         id: pr
