@@ -37,6 +37,7 @@ jobs:
 
           # Retrieve label information using the GitHub API
           label_response=$(gh api -X GET /repos/${{ github.repository }}/labels/"$version")
+          echo "$label_response"
           exists=$(echo "$label_response" | jq -e . >/dev/null; echo $?)
           echo "exists=${exists}" >> $GITHUB_ENV
         env:
