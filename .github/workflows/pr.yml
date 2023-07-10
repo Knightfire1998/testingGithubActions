@@ -48,7 +48,7 @@ jobs:
             
           
           gh pr edit $pr_number --add-label "$version"
-          fi
+          
 
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
