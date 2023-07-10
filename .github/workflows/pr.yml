@@ -46,6 +46,7 @@ jobs:
           echo "$pr_number"
           task_id=$(gh pr view $pr_number --json body -q '.body' | grep -oP '#\d+' | grep -oP '\d+')  
           echo "$task_id"
+          echo "Task_ID=$task_id" >> $GITHUB_ENV
 
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
@@ -54,17 +55,17 @@ jobs:
       - name: Retrieve milestone information
         id: milestone
         run: |
-          task_id="${{ needs.pr.outputs.task_id }}"
+          task_id=$Task_ID
           milestone=$(gh api repos/${{ github.repository }}/issues/$task_id | jq -r '.milestone')
-          echo "::set-output name=milestone::$milestone"
+          echo "Milestone = $milestone" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
 
       - name: Associate PR with task and milestone
         run: |
-          task_id="${{ needs.pr.outputs.task_id }}"
-          milestone_number=$(echo "${{ needs.milestone.outputs.milestone }}" | jq -r '.number')
+          task_id=$Task_ID
+          milestone_number=$(echo "${{ env.Milestone}}" | jq -r '.number')
           gh api repos/${{ github.repository }}/issues/$task_id --method PATCH --field milestone="$milestone_number" --field labels+="PR Linked"
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
@@ -72,7 +73,7 @@ jobs:
 
       - name: Use Milestone
         run: |
-          milestone_title=$(echo "${{ needs.milestone.outputs.milestone }}" | jq -r '.title')
+          milestone_title=$(echo "${{env.Milestone }}" | jq -r '.title')
           echo "Milestone: $milestone_title"
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
