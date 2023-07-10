@@ -7,8 +7,7 @@ on:
       - synchronize
 
 jobs:
-  env:
-    GH_TOKEN: ${{ secrets.Token }}
+
   process-pr:
     runs-on: ubuntu-latest
 
@@ -25,12 +24,17 @@ jobs:
           version="${{ needs.version.outputs.version }}"
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
           gh pr edit $pr_number --add-label "$version"
+        env:
+          GH_TOKEN: ${{ secrets.Token }}
 
       - name: Retrieve PR details
         id: pr
         run: |
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
           echo "::set-output name=task_id::$(gh pr view $pr_number --json body -q '.body' | grep -oP '#\d+' | grep -oP '\d+')"
+        env:
+          GH_TOKEN: ${{ secrets.Token }}
+
 
       - name: Retrieve milestone information
         id: milestone
@@ -38,14 +42,23 @@ jobs:
           task_id="${{ needs.pr.outputs.task_id }}"
           milestone=$(gh api repos/${{ github.repository }}/issues/$task_id | jq -r '.milestone')
           echo "::set-output name=milestone::$milestone"
+        env:
+          GH_TOKEN: ${{ secrets.Token }}
+
 
       - name: Associate PR with task and milestone
         run: |
           task_id="${{ needs.pr.outputs.task_id }}"
           milestone_number=$(echo "${{ needs.milestone.outputs.milestone }}" | jq -r '.number')
           gh api repos/${{ github.repository }}/issues/$task_id --method PATCH --field milestone="$milestone_number" --field labels+="PR Linked"
+        env:
+          GH_TOKEN: ${{ secrets.Token }}
+
 
       - name: Use Milestone
         run: |
           milestone_title=$(echo "${{ needs.milestone.outputs.milestone }}" | jq -r '.title')
           echo "Milestone: $milestone_title"
+        env:
+          GH_TOKEN: ${{ secrets.Token }}
+
