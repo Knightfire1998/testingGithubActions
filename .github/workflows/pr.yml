@@ -24,14 +24,15 @@ jobs:
             echo "version.txt file not found in the repository."
             exit 1
           fi
-
+        env:
+          GITHUB_TOKEN: ${{ secrets.Token }}
       - name: Assign version as a label
         run: |
           version="${{ needs.version.outputs.version }}"
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
           gh pr edit $pr_number --add-label "$version"
         env:
-          GH_TOKEN: ${{ secrets.Token }}
+          GITHUB_TOKEN: ${{ secrets.Token }}
 
       - name: Retrieve PR details
         id: pr
@@ -39,7 +40,7 @@ jobs:
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
           echo "::set-output name=task_id::$(gh pr view $pr_number --json body -q '.body' | grep -oP '#\d+' | grep -oP '\d+')"
         env:
-          GH_TOKEN: ${{ secrets.Token }}
+          GITHUB_TOKEN: ${{ secrets.Token }}
 
 
       - name: Retrieve milestone information
@@ -49,7 +50,7 @@ jobs:
           milestone=$(gh api repos/${{ github.repository }}/issues/$task_id | jq -r '.milestone')
           echo "::set-output name=milestone::$milestone"
         env:
-          GH_TOKEN: ${{ secrets.Token }}
+          GITHUB_TOKEN: ${{ secrets.Token }}
 
 
       - name: Associate PR with task and milestone
@@ -58,7 +59,7 @@ jobs:
           milestone_number=$(echo "${{ needs.milestone.outputs.milestone }}" | jq -r '.number')
           gh api repos/${{ github.repository }}/issues/$task_id --method PATCH --field milestone="$milestone_number" --field labels+="PR Linked"
         env:
-          GH_TOKEN: ${{ secrets.Token }}
+          GITHUB_TOKEN: ${{ secrets.Token }}
 
 
       - name: Use Milestone
@@ -66,5 +67,5 @@ jobs:
           milestone_title=$(echo "${{ needs.milestone.outputs.milestone }}" | jq -r '.title')
           echo "Milestone: $milestone_title"
         env:
-          GH_TOKEN: ${{ secrets.Token }}
+          GITHUB_TOKEN: ${{ secrets.Token }}
 
