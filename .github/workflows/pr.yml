@@ -33,7 +33,7 @@ jobs:
         run: |
           version="${{ env.version }}"
           pr_url="${{ github.event.pull_request.url }}"
-          pr_number=$(echo "$pr_url" | jq -r '. | split("/") | last')
+          pr_number=$(echo "$pr_url" | awk -F'/' '{print $(NF)}')
           echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
           pr_number=$PR_NUMBER
           gh pr edit $pr_number --add-label "$version"
