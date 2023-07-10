@@ -17,7 +17,13 @@ jobs:
 
       - name: Retrieve the version
         id: version
-        run: echo "version = $(cat $GITHUB_WORKSPACE/version.txt)" >> $GITHUB_OUTPUT
+        run: 
+        if [[ -f $GITHUB_WORKSPACE/version.txt ]]; the
+        echo "version = $(cat $GITHUB_WORKSPACE/version.txt)" >> $GITHUB_OUTPUT
+        else
+        echo "ERROR :version.txt file not found in the repository."
+        exit 1
+        fi
 
       - name: Assign version as a label
         run: |
