@@ -23,7 +23,7 @@ jobs:
       - name: Assign version as a label
         run: |
           version=${{ needs.version.outputs.version }}
-          gh pr edit $PR_NUMBER --add-labels "$version"
+          gh pr edit $PR_NUMBER --add-label "$version"
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
