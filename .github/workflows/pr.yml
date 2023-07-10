@@ -43,6 +43,7 @@ jobs:
         run: |
           project_id="49895164"  # Replace with your project ID
           custom_field_name="versions"  # Replace with the name of your custom field
+          echo "PR number: $custom_field_name"
           custom_field_value=$(curl -s -H "Authorization: Bearer ${{ secrets.Token }}" \
               "https://api.github.com/projects/$project_id" | \
               jq -r ".custom_field_values[] | select(.name == \"$custom_field_name\") | .value")
