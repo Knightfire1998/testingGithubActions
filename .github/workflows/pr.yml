@@ -30,24 +30,34 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
-      - name: Assign version as a label
+      - name: Check Label Existence
+        id: check_label
         run: |
           version="${{ env.version }}"
 
+          # Retrieve label information using the GitHub API
+          label_response=$(gh api -X GET /repos/${{ github.repository }}/labels/"$version")
+          exists=$(echo "$label_response" | jq -e . >/dev/null; echo $?)
+          echo "exists=${exists}" >> $GITHUB_ENV
+
+
+      - name: Assign version as a label
+        run: |
+          version="${{ env.version }}"
+          exists="${{ env.exists }}"
+
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
           echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-          
-          label_response=$(gh api -X GET /repos/${{ github.repository }}/labels/"$version") 
-          exists=$(echo "$label_response" | jq -e . >/dev/null; echo $?)
+
 
           if [[ $exists -ne 0 ]]; then
             gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
+            
           else
 
-            echo "label=${version}" >> $GITHUB_ENV
-            
-          
           gh pr edit $pr_number --add-label "$version"
+
+          fi
           
 
         env:
