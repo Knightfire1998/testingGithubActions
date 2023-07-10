@@ -18,7 +18,7 @@ jobs:
       - name: Retrieve the version
         id: version
         run: |
-          if [[ -f $GITHUB_WORKSPACE/version.txt ]]; the
+          if [[ -f $GITHUB_WORKSPACE/version.txt ]]; then
              echo "version = $(cat $GITHUB_WORKSPACE/version.txt)" >> $GITHUB_OUTPUT
           else
             echo "version.txt file not found in the repository."
