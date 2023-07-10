@@ -22,7 +22,7 @@ jobs:
              echo "version = $(cat $GITHUB_WORKSPACE/version.txt)" >> $GITHUB_OUTPUT
           else
             echo "version.txt file not found in the repository."
-          exit 1
+            exit 1
           fi
 
       - name: Assign version as a label
