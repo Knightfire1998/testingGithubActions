@@ -1,1 +1,53 @@
 
+name: Issue Processing
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+
+jobs:
+  process-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Retrieve the version
+        id: version
+        run: |
+          current_version=$(cat version.txt)
+          echo "::set-output name=version::$current_version"
+
+      - name: Assign version as a label
+        run: |
+          version=${{ needs.version.outputs.version }}
+          issue_number=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
+          gh issue edit $issue_number --add-labels "$version"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retrieve the task ID
+        id: task
+        run: |
+          issue_number=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
+          task_id=$(gh api repos/$GITHUB_REPOSITORY/issues/$issue_number | jq -r '.body' | grep -oP '#\d+' | grep -oP '\d+')
+          echo "::set-output name=task_id::$task_id"
+
+      - name: Retrieve the milestone number
+        id: milestone
+        run: |
+          issue_number=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
+          milestone_number=$(gh api repos/$GITHUB_REPOSITORY/issues/$issue_number | jq -r '.milestone.number')
+          echo "::set-output name=milestone_number::$milestone_number"
+
+      - name: Use Milestone, Task, and Version
+        run: |
+          task_id=${{ needs.task.outputs.task_id }}
+          milestone_number=${{ needs.milestone.outputs.milestone_number }}
+          version=${{ needs.version.outputs.version }}
+          gh api repos/$GITHUB_REPOSITORY/issues/$task_id --method PATCH --field mile
+stone="$milestone_number" --field labels+="PR Linked"
+          gh issue edit $task_id --add-labels "$version"
