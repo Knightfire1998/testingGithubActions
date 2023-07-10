@@ -1,0 +1,66 @@
+name: PR Processing
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  process-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Retrieve the version
+        id: version
+        run: |
+          current_version=$(cat version.txt)
+          echo "::set-output name=version::$current_version"
+
+      - name: Assign version as a label
+        run: |
+          version=${{ needs.version.outputs.version }}
+          gh pr edit $PR_NUMBER --add-labels "$version"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retrieve PR details
+        id: pr
+        run: |
+          echo "::set-output name=task_id::$(gh pr view $PR_NUMBER --json body -q '.body' | grep -oP '#\d+' | grep -oP '\d+')"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retrieve milestone number
+        id: milestone
+        run: |
+          task_id=${{ needs.pr.outputs.task_id }}
+          milestone_number=$(gh api repos/$GITHUB_REPOSITORY/issues/$task_id | jq -r '.milestone.number')
+          echo "::set-output name=milestone_number::$milestone_number"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retrieve milestone title
+        id: milestone_title
+        run: |
+          task_id=${{ needs.pr.outputs.task_id }}
+          milestone_title=$(gh api repos/$GITHUB_REPOSITORY/issues/$task_id | jq -r '.milestone.title')
+          echo "::set-output name=milestone_title::$milestone_title"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Associate PR with task and milestone
+        run: |
+          task_id=${{ needs.pr.outputs.task_id }}
+          milestone_number=${{ needs.milestone.outputs.milestone_number }}
+          gh api repos/$GITHUB_REPOSITORY/issues/$task_id --method PATCH --field milestone="$milestone_number" --field labels+="PR Linked"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Use Milestone
+        run: |
+          milestone_title=${{ needs.milestone_title.outputs.milestone_title }}
+          echo "Milestone: $milestone_title"
