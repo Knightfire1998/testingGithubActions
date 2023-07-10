@@ -33,6 +33,7 @@ jobs:
         run: |
           version="${{ env.version }}"
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
+          echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
           gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
           gh pr edit $pr_number --add-label "$version"
         env:
@@ -41,8 +42,8 @@ jobs:
       - name: Retrieve PR details
         id: pr
         run: |
-          pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
-          echo "::set-output name=task_id::$(gh pr view $pr_number --json body -q '.body' | grep -oP '#\d+' | grep -oP '\d+')"
+          pr_number=$PR_NUMBER
+          task_id=$(gh pr view $pr_number --json body -q '.body' | grep -oP '#\d+' | grep -oP '\d+')        
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
