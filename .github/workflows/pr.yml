@@ -33,7 +33,6 @@ jobs:
         run: |
           version="${{ env.version }}"
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
-          pr_url = ${{ github.event.pull_request.url }}
           pr_title = ${{ github.event.pull_request.title }}
           echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
           echo "PR_URL=$pr_url" >> $GITHUB_ENV
@@ -71,7 +70,7 @@ jobs:
         run: |
           task_id=$Task_ID
           milestone_number=$(echo "${{ env.Task_ID}}" )
-          comment="This PR has been linked to the task.\n\nPR: [#${env.PR_NUMBER}](${env.PR_URL}) - ${env.PR_TITLE}"
+          comment="This PR has been linked to the task.\n\nPR: [#${env.PR_NUMBER}] ${env.PR_TITLE}"
           gh issue comment $task_id -b "$comment"
           gh api repos/${{ github.repository }}/issues/$task_id --method PATCH --field milestone="$milestone_number" --field labels+="PR Linked"
         env:
