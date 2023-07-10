@@ -7,6 +7,8 @@ on:
       - synchronize
 
 jobs:
+  env:
+    GH_TOKEN: ${{ secrets.Token }}
   process-pr:
     runs-on: ubuntu-latest
 
