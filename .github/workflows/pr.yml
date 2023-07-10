@@ -43,6 +43,7 @@ jobs:
         id: pr
         run: |
           pr_number=$PR_NUMBER
+          echo "$pr_number"
           task_id=$(gh pr view $pr_number --json body -q '.body' | grep -oP '#\d+' | grep -oP '\d+')        
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
