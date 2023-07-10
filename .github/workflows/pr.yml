@@ -29,22 +29,26 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
+
       - name: Assign version as a label
         run: |
           version="${{ env.version }}"
+
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
           echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
           
           label_response=$(gh api -X GET /repos/${{ github.repository }}/labels/"$version") 
-          exists=$(echo "$label_response" | jq -e . >/dev/null; echo $?)          
+          exists=$(echo "$label_response" | jq -e . >/dev/null; echo $?)
+
           if [[ $exists -ne 0 ]]; then
             gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
           else
 
             echo "label=${version}" >> $GITHUB_ENV
             
-
+          fi
           gh pr edit $pr_number --add-label "$version"
+
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
