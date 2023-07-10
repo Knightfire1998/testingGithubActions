@@ -37,7 +37,7 @@ jobs:
           echo $pr_number
           echo "PR_NUMBER=${pr_number}" >> $GITHUB_ENV
           pr_number=$PR_NUMBER
-          git checkout ${{ github.head_ref }}
+          
           gh pr edit $pr_number --add-label "$version"
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
