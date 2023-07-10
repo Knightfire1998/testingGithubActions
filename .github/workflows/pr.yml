@@ -39,6 +39,8 @@ jobs:
           label_response=$(gh api -X GET /repos/${{ github.repository }}/labels/"$version")
           exists=$(echo "$label_response" | jq -e . >/dev/null; echo $?)
           echo "exists=${exists}" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.Token }}
 
 
       - name: Assign version as a label
