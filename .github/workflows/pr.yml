@@ -17,7 +17,7 @@ jobs:
 
       - name: Retrieve the version
         id: version
-        run: echo "::set-output name=version::$(cat version.txt)"
+        run: echo "version = (cat version.txt)" >> $GITHUB_OUTPUT
 
       - name: Assign version as a label
         run: |
