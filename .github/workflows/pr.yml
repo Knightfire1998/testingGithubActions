@@ -21,7 +21,7 @@ jobs:
           echo "Workspace path: $GITHUB_WORKSPACE/../"
           ls $GITHUB_WORKSPACE
           if [[ -f $GITHUB_WORKSPACE/version.txt ]]; then
-             echo "version = $(cat $GITHUB_WORKSPACE/version.txt)" >> $GITHUB_OUTPUT
+             echo "version = $(cat $GITHUB_WORKSPACE/version.txt)" >> $GITHUB_ENV
           else
             echo "version.txt file not found in the repository."
             exit 1
