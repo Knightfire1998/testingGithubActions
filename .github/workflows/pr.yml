@@ -56,7 +56,7 @@ jobs:
         id: milestone
         run: |
           task_id=$Task_ID
-          milestone=$(gh api repos/${{ github.repository }}/issues/$task_id | jq -r '.milestone')
+          milestone=$(gh api repos/${{ github.repository }}/issues/$task_id | jq -r '.milestone' | awk -F/ '{print $NF})
           echo "$milestone"
           echo "Milestone = $milestone" >> $GITHUB_ENV
         env:
