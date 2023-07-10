@@ -18,6 +18,7 @@ jobs:
       - name: Retrieve the version
         id: version
         run: |
+          echo "Workspace path: $GITHUB_WORKSPACE"
           if [[ -f $GITHUB_WORKSPACE/version.txt ]]; then
              echo "version = $(cat $GITHUB_WORKSPACE/version.txt)" >> $GITHUB_OUTPUT
           else
