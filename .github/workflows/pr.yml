@@ -34,7 +34,16 @@ jobs:
           version="${{ env.version }}"
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
           echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-          gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
+          
+          exists_version=$(gh api -X GET /repos/${{ github.repository }}/labels/$version -o json --exit-status)
+          
+          if [[ $exists_version -ne 0 ]]; then
+            gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
+          else
+
+            echo "label=${version}" >> $GITHUB_ENV
+            
+
           gh pr edit $pr_number --add-label "$version"
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
