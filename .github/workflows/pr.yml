@@ -30,7 +30,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.Token }}
       - name: Assign version as a label
         run: |
-          version="${{ needs.version.outputs.version }}"
+          version="${{ env.version }}"
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
           gh pr edit $pr_number --add-label "$version"
         env:
