@@ -33,7 +33,7 @@ jobs:
         run: |
           version="${{ env.version }}"
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
-          gh api -X POST /repos/${{ github.repository }}/labels -f name="$version_label" -f color="ff0000"
+          gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
           gh pr edit $pr_number --add-label "$version"
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
