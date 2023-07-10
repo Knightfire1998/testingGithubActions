@@ -69,7 +69,9 @@ jobs:
         run: |
           task_id=$Task_ID
           milestone_number=$(echo "${{ env.Task_ID}}" )
-          comment="This PR has been linked to the task.\n\nPR: [#${env.PR_NUMBER}] ${env.PR_TITLE}"
+          PR_NUMBER = $PR_NUMBER
+          PR_TITLE = $PR_TITLE
+          comment="This PR has been linked to the task.\n\nPR: [#${PR_NUMBER}] ${PR_TITLE}"
           gh issue comment $task_id -b "$comment"
           gh api repos/${{ github.repository }}/issues/$task_id --method PATCH --field milestone="$milestone_number" --field labels+="PR Linked"
         env:
