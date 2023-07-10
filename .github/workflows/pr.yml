@@ -57,6 +57,7 @@ jobs:
         run: |
           task_id=$Task_ID
           milestone=$(gh api repos/${{ github.repository }}/issues/$task_id | jq -r '.milestone')
+          echo "$milestone"
           echo "Milestone = $milestone" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
