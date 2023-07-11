@@ -68,7 +68,7 @@ jobs:
       - name: Associate PR with task and milestone
         run: |
           task_id=$Task_ID
-          milestone_number= $Milestone
+          milestone_number=$Milestone
           pr_number=$PR_NUMBER
           pr_title=$PR_TITLE
           pr_url=$PR_URL
