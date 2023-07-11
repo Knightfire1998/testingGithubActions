@@ -46,7 +46,7 @@ jobs:
         run: |
           pr_number=$PR_NUMBER
           echo "$pr_number"
-          task_id=$(gh pr view $pr_number --json body -q '.body' | grep -oP '#\d+' | grep -oP '\d+')  
+          task_id=$(echo '${{ github.event.pull_request.body }}' | grep -oP '#\d+' | grep -oP '\d+')"
           echo "$task_id"
           echo "Task_ID=$task_id" >> $GITHUB_ENV
 
