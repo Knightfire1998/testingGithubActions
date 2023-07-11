@@ -73,8 +73,12 @@ jobs:
           pr_title=$PR_TITLE
           pr_url=$PR_URL
           comment="This PR has been linked to the task.\n\nPR: [#${pr_number}](${pr_url}) - ${pr_title}"
-          body = 'This PR has been linked to the task.\n\nPR: [#${pr_number}](${pr_url}) - ${pr_title}'
-          gh issue edit $task_id --body "$body"
+          body='{"body":"This PR has been linked to the task.\n\nPR: [#$pr_number]($pr_url) - $pr_title"}'
+              curl -X PATCH \
+                -H "Authorization: Bearer ${{ secrets.TOKEN }}" \
+                -H "Content-Type: application/json" \
+                -d "$body" \
+                "https://api.github.com/repos/${{ github.repository }}/issues/$task_id"
           gh issue label add $task_id "Pr Linked"        
           gh issue comment $task_id -b "$comment"
           gh api repos/${{ github.repository }}/issues/$task_id --method PATCH --field milestone="$milestone_number" --field labels+="PR Linked"
