@@ -58,7 +58,7 @@ jobs:
         id: milestone
         run: |
           task_id=$Task_ID
-          milestone=$(gh issue view $task_id --json milestone --jq '.[].number')
+          milestone=$(gh issue view $task_id --json milestone --jq '.[].name')
           echo "$milestone"
           echo "Milestone=$milestone" >> $GITHUB_ENV
         env:
@@ -68,16 +68,17 @@ jobs:
       - name: Associate PR with task and milestone
         run: |
           task_id=$Task_ID
-          milestone_number=$Milestone
+          milestone_name=$Milestone
           pr_number=$PR_NUMBER
           pr_title=$PR_TITLE
           pr_url=$PR_URL
           comment="This PR has been linked to the task. PR: [#${pr_number}](${pr_url}) - ${pr_title}"
                
           gh issue comment $task_id -b "$comment"
+          gh issue edit  $task_id -m "$milestone_name"
+          
           gh pr edit $pr_number --add-label "PR Linked" 
           gh issue comment $task_id -b "PR Linked: [#$pr_number](${{ github.event.pull_request.html_url }}) -  ${{ github.event.pull_request.title }}"       
-          gh api repos/${{ github.repository }}/issues/$task_id --method PATCH --field milestone="$milestone_number"
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
