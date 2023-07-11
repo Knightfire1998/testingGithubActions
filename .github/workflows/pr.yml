@@ -72,7 +72,10 @@ jobs:
           pr_number=$PR_NUMBER
           pr_title=$PR_TITLE
           pr_url=$PR_URL
-          comment="This PR has been linked to the task.\n\nPR: [#${pr_number}](${pr_url}) - ${pr_title}"          
+          comment="This PR has been linked to the task.\n\nPR: [#${pr_number}](${pr_url}) - ${pr_title}"
+          body = "This PR has been linked to the task.\n\nPR: [#${pr_number}](${pr_url}) - ${pr_title}"
+          gh issue update $task_id --body "$body"
+          gh issue label add $task_id "Pr Linked"        
           gh issue comment $task_id -b "$comment"
           gh api repos/${{ github.repository }}/issues/$task_id --method PATCH --field milestone="$milestone_number" --field labels+="PR Linked"
         env:
