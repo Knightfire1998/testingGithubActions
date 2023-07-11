@@ -78,7 +78,6 @@ jobs:
           gh pr edit  $pr_number --milestone "$milestone_name"
           
           gh pr edit $pr_number --add-label "PR Linked" 
-          gh issue comment $task_id -b "PR Linked: [#$pr_number](${{ github.event.pull_request.html_url }}) -  ${{ github.event.pull_request.title }}"       
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
