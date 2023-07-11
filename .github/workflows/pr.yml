@@ -60,7 +60,7 @@ jobs:
           task_id=$Task_ID
           milestone=$(gh issue view $task_id --json milestone --jq '.[].number')
           echo "$milestone"
-          echo "Milestone = $milestone" >> $GITHUB_ENV
+          echo "Milestone=$milestone" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
@@ -68,7 +68,7 @@ jobs:
       - name: Associate PR with task and milestone
         run: |
           task_id=$Task_ID
-          milestone_number= $
+          milestone_number= $Milestone
           pr_number=$PR_NUMBER
           pr_title=$PR_TITLE
           pr_url=$PR_URL
