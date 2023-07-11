@@ -54,21 +54,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
 
-      # - name: Retrieve milestone information
-      #   id: milestone
-      #   run: |
-      #     task_id=$Task_ID
-      #     milestone=$(gh api repos/${{ github.repository }}/issues/$task_id | jq -r '.milestone')
-      #     echo "$milestone"
-      #     echo "Milestone = $milestone" >> $GITHUB_ENV
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.Token }}
+      - name: Retrieve milestone information
+        id: milestone
+        run: |
+          task_id=$Task_ID
+          milestone=$(gh issue view $task_id --json milestone --jq '.[].number')
+          echo "$milestone"
+          echo "Milestone = $milestone" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.Token }}
 
 
       - name: Associate PR with task and milestone
         run: |
           task_id=$Task_ID
-          milestone_number=1
+          milestone_number= $
           pr_number=$PR_NUMBER
           pr_title=$PR_TITLE
           pr_url=$PR_URL
