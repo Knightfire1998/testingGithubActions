@@ -32,12 +32,27 @@ jobs:
       - name: Assign version as a label
         run: |
           version="${{ env.version }}"
+          labels=$(gh api repos/${{ github.repository }}/labels --jq '.[].name')
+          echo "labels=$labels">> $GITHUB_ENV
+          desired_label=$version
+
+          if [[ "$labels" == *"$desired_label"* ]]; then
+            echo "Label exists!"
+            gh pr edit $pr_number --add-label "$version"
+
+          else
+            echo "Label does not exist!"
+            gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
+            gh pr edit $pr_number --add-label "$version"
+          
           pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
           echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
           echo "PR_URL=${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV          
           echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-          gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
-          gh pr edit $pr_number --add-label "$version"
+
+          fi
+
+          
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
