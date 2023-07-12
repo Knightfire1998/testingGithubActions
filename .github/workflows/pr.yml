@@ -34,6 +34,7 @@ jobs:
           version="${{ env.version }}"
           labels=$(gh api repos/${{ github.repository }}/labels --jq '.[].name')
           echo "labels=${labels}">> $GITHUB_ENV
+          echo "$labels"
           desired_label=$version
 
           if [[ "$labels" == *"$desired_label"* ]]; then
