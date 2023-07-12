@@ -31,7 +31,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.Token }}
 
       - name: Retrieve the labels
-        id: version
+        id: labels
         run: |
           labels=$(gh api repos/${{ github.repository }}/labels --jq '.[].name')
           echo "labels=${labels}">> $GITHUB_ENV
