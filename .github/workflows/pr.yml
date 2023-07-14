@@ -98,6 +98,7 @@ jobs:
           pr_title=$PR_TITLE
           pr_url=$PR_URL
           comment="This PR has been linked to the task. PR: [#${pr_number}](${pr_url}) - ${pr_title}"
+          gh issue edit $task_id --add-relationship pull/$pr_number
                
           gh issue comment $task_id -b "$comment"
           gh pr edit  $pr_number --milestone "$milestone_name"
