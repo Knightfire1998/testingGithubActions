@@ -101,8 +101,8 @@ jobs:
           curl -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.spiderman-preview+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/$task_id/links" \
-            -d "{\"link\": \"$PR_NUMBER\"}"
+            "https://api.github.com/repos/${{ github.repository }}/issues/5/links" \
+            -d "{\"link\": \"4\"}"
                
           gh issue comment $task_id -b "$comment"
           gh pr edit  $pr_number --milestone "$milestone_name"
