@@ -100,9 +100,10 @@ jobs:
           comment="This PR has been linked to the task. PR: [#${pr_number}](${pr_url}) - ${pr_title}"
           curl -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.spiderman-preview+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/5/links" \
-            -d "{\"link\": \"4\"}"
+            -H "Accept: application/vnd.github.v3+json" \
+            -d "{\"relation\":\"linked\",\"url\":\"${{$PR_URL}}\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/5/relationships"
+
                
           gh issue comment $task_id -b "$comment"
           gh pr edit  $pr_number --milestone "$milestone_name"
