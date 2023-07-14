@@ -29,10 +29,16 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
+
+
       - name: Retrieve labels
-      - run: |
+        run: |
               label = ${gh label list --search ${{env,version}}}
               echo "$label"
+        env:
+          GITHUB_TOKEN: ${{ secrets.Token }}
+
+
       - name: Assign version as a label
         run: |
           version="${{ env.version }}"
