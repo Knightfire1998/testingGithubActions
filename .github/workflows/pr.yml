@@ -36,10 +36,10 @@ jobs:
               labels=$(gh label list --search "${{ env.version }}" )
               echo "$labels"
               if [[ "$labels" == " "  ]]; then
-                flag = "false"
+                flag="false"
                 echo "flag=${flag}" >> $GITHUB_ENV
               else
-                flag = "true"
+                flag="true"
                 echo "flag=${flag}" >> $GITHUB_ENV
                 exit 1
               fi
