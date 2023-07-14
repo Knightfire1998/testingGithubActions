@@ -33,7 +33,7 @@ jobs:
 
       - name: Retrieve labels
         run: |
-              labels=$(gh label list --search "${{ env.version }}" --json name -q '.[].name')
+              labels=$(gh label list --search "${{ env.version }}" )
               echo "$labels"
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
