@@ -101,7 +101,7 @@ jobs:
           curl -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            -d "{\"relation\":\"linked\",\"url\":\"$PR_URL\"}" \
+            -d "{\"relation\":\"linked\",\"url\":\"https://github.com/Knightfire1998/testingGithubActions/pull/4\"}" \
             "https://api.github.com/repos/${{ github.repository }}/issues/5/relationships"
 
                
