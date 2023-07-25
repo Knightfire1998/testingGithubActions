@@ -7,6 +7,7 @@ on:
       - synchronize
 
 jobs:
+
   process-pr:
     runs-on: ubuntu-latest
 
@@ -17,50 +18,98 @@ jobs:
       - name: Retrieve the version
         id: version
         run: |
-          current_version=$(cat version.txt)
-          echo "::set-output name=version::$current_version"
+          echo "Workspace path: $GITHUB_WORKSPACE/../"
+          ls $GITHUB_WORKSPACE
+          if [[ -f $GITHUB_WORKSPACE/version.txt ]]; then
+             version=$(cat  $GITHUB_WORKSPACE/version.txt)
+             echo "version=${version}" >> $GITHUB_ENV
+          else
+            echo "version.txt file not found in the repository."
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.Token }}
+
+
+      - name: Retrieve labels
+        run: |
+              labels=$(gh label list --search "${{ env.version }}" )
+              echo "$labels"
+              if [[ -z "${labels// }" ]]; then
+                flag="false"
+                echo "flag=${flag}" >> $GITHUB_ENV
+              else
+                flag="true"
+                echo "flag=${flag}" >> $GITHUB_ENV
+                
+              fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.Token }}
+
 
       - name: Assign version as a label
         run: |
-          version=${{ needs.version.outputs.version }}
-          gh pr edit $PR_NUMBER --add-labels "$version"
+          version="${{ env.version }}"
+          pr_number=$(echo "${{ github.event.pull_request.url }}" | awk -F/ '{print $NF}')
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+          echo "PR_URL=${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV          
+          echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
+          if [[ "${{env.flag}}" == "false" ]]; then
+            gh api -X POST /repos/${{ github.repository }}/labels -f name="$version" -f color="ff0000"
+            gh pr edit $pr_number --add-label "$version"
+
+          else
+            gh pr edit $pr_number --add-label "$version"
+          
+          fi
+
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.Token }}
 
       - name: Retrieve PR details
         id: pr
         run: |
-          echo "::set-output name=task_id::$(gh pr view $PR_NUMBER --json body -q '.body' | grep -oP '#\d+' | grep -oP '\d+')"
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          pr_number=$PR_NUMBER
+          echo "$pr_number"
+          task_id="$(echo '${{ github.event.pull_request.body }}' | grep -oP '#\d+' | grep -oP '\d+')"
+          echo "$task_id"
+          echo "Task_ID=$task_id" >> $GITHUB_ENV
 
-      - name: Retrieve milestone number
+        env:
+          GITHUB_TOKEN: ${{ secrets.Token }}
+
+
+      - name: Retrieve milestone information
         id: milestone
         run: |
-          task_id=${{ needs.pr.outputs.task_id }}
-          milestone_number=$(gh api repos/testingGithubActions/issues/$task_id | jq -r '.milestone.number')
-          echo "::set-output name=milestone_number::$milestone_number"
+          task_id=$Task_ID
+          milestone=$(gh issue view $task_id --json milestone --jq '.[].title')
+          echo "$milestone"
+          echo "Milestone=$milestone" >> $GITHUB_ENV
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.Token }}
 
-      - name: Retrieve milestone title
-        id: milestone_title
-        run: |
-          task_id=${{ needs.pr.outputs.task_id }}
-          milestone_title=$(gh api repos/testingGithubActions/issues/$task_id | jq -r '.milestone.title')
-          echo "::set-output name=milestone_title::$milestone_title"
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
       - name: Associate PR with task and milestone
         run: |
-          task_id=${{ needs.pr.outputs.task_id }}
-          milestone_number=${{ needs.milestone.outputs.milestone_number }}
-          gh api repos/testingGithubActions/issues/$task_id --method PATCH --field milestone="$milestone_number" --field labels+="PR Linked"
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          task_id=$Task_ID
+          milestone_name=$Milestone
+          pr_number=$PR_NUMBER
+          pr_title=$PR_TITLE
+          pr_url=$PR_URL
+          comment="This PR has been linked to the task. PR: close [#${pr_number}](${pr_url}) - ${pr_title}"
+          curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d "{\"relation\":\"linked\",\"url\":\"https://github.com/Knightfire1998/testingGithubActions/pull/4\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/5/relationships"
 
-      - name: Use Milestone
-        run: |
-          milestone_title=${{ needs.milestone_title.outputs.milestone_title }}
-          echo "Milestone: $milestone_title"
+               
+          gh issue comment $task_id -b "$comment"
+          gh pr edit  $pr_number --milestone "$milestone_name"
+          
+          gh pr edit $pr_number --add-label "PR Linked" 
+        env:
+          GITHUB_TOKEN: ${{ secrets.Token }}
+
+
